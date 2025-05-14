@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36109.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthScapeMAUI", "AuthScapeMAUI.csproj", "{677CAB15-BFFA-4F17-ACD9-D7E79D081B5C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthScape.MAUI", "..\AuthScape.MAUI\AuthScape.MAUI.csproj", "{7DF2A014-06AE-43C6-A712-AA129ACF55F0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{677CAB15-BFFA-4F17-ACD9-D7E79D081B5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{677CAB15-BFFA-4F17-ACD9-D7E79D081B5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{677CAB15-BFFA-4F17-ACD9-D7E79D081B5C}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{677CAB15-BFFA-4F17-ACD9-D7E79D081B5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{677CAB15-BFFA-4F17-ACD9-D7E79D081B5C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7DF2A014-06AE-43C6-A712-AA129ACF55F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7DF2A014-06AE-43C6-A712-AA129ACF55F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DF2A014-06AE-43C6-A712-AA129ACF55F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7DF2A014-06AE-43C6-A712-AA129ACF55F0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A0415779-0324-479C-8464-83354F5B99A3}
+	EndGlobalSection
+EndGlobal

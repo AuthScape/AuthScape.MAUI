@@ -29,7 +29,24 @@
     </ContentPage.Resources>
 
     <Grid>
-        <pullToRefresh:SfPullToRefresh
+        <VerticalStackLayout Spacing="{StaticResource LayoutSpacing}" Padding="{StaticResource LayoutPadding}">
+            
+            <Label x:Name="label"
+               Text="Not Logged in"
+               FontSize="18"
+               VerticalOptions="Center"
+               HorizontalOptions="Center" />
+
+
+            <Button Text="Login"
+                VerticalOptions="Center"
+                HorizontalOptions="Center" 
+                Command="{Binding AuthenticateCommand}"
+                    />
+            
+        </VerticalStackLayout>
+
+        <!--<pullToRefresh:SfPullToRefresh
             IsRefreshing="{Binding IsRefreshing}"
             RefreshCommand="{Binding RefreshCommand}">
             <pullToRefresh:SfPullToRefresh.PullableContent>
@@ -80,6 +97,6 @@
 
         <controls:AddButton 
             IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
-            Command="{Binding AddTaskCommand}" />
+            Command="{Binding AddTaskCommand}" />-->
     </Grid>
 </ContentPage>

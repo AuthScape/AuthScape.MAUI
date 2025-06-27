@@ -42,7 +42,7 @@
                 VerticalOptions="Center"
                 HorizontalOptions="Center" 
                 Command="{Binding AuthenticateCommand}"
-                    />
+            />
             
         </VerticalStackLayout>
 

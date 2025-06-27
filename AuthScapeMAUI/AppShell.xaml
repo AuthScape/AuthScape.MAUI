@@ -6,7 +6,24 @@
     xmlns:sf="clr-namespace:Syncfusion.Maui.Toolkit.SegmentedControl;assembly=Syncfusion.Maui.Toolkit"
     xmlns:pages="clr-namespace:AuthScapeMAUI.Pages"
     Shell.FlyoutBehavior="Flyout"
+    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
     Title="AuthScapeMAUI">
+
+    <Shell.TitleView>
+        <Grid ColumnDefinitions="*,Auto">
+            <Label Text="Your Company Name"
+               VerticalOptions="Center"
+               FontSize="20"
+               Padding="10,0" />
+            <ImageButton Source="barcode_icon.png"
+                     Grid.Column="1"
+                     BackgroundColor="Transparent"
+                     HeightRequest="24"
+                     WidthRequest="24"
+                     Margin="0,0,10,0" />
+        </Grid>
+    </Shell.TitleView>
+
 
     <ShellContent
         Title="Dashboard"

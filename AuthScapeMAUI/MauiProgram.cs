@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Maui;
+﻿using AuthScape.MAUI;
+using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
 using Syncfusion.Maui.Toolkit.Hosting;
 
@@ -38,6 +39,9 @@ namespace AuthScapeMAUI
             builder.Services.AddSingleton<MainPageModel>();
             builder.Services.AddSingleton<ProjectListPageModel>();
             builder.Services.AddSingleton<ManageMetaPageModel>();
+            
+            // Setup for components that AuthScape Supports
+            AuthScapeMauiBuilder.Build<App>(builder);
 
             builder.Services.AddTransientWithShellRoute<ProjectDetailPage, ProjectDetailPageModel>("project");
             builder.Services.AddTransientWithShellRoute<TaskDetailPage, TaskDetailPageModel>("task");

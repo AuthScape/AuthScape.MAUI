@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Maui.Alerts;
+﻿using AuthScape.MAUI.Auth;
+using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using Font = Microsoft.Maui.Font;
 
@@ -10,7 +11,9 @@ namespace AuthScapeMAUI
         {
             InitializeComponent();
             var currentTheme = Application.Current!.UserAppTheme;
-            ThemeSegmentedControl.SelectedIndex = currentTheme == AppTheme.Light ? 0 : 1;
+            //ThemeSegmentedControl.SelectedIndex = currentTheme == AppTheme.Light ? 0 : 1;
+
+            Routing.RegisterRoute("mainpage", typeof(Authentication)); // must be registered for the deeplink
         }
         public static async Task DisplaySnackbarAsync(string message)
         {

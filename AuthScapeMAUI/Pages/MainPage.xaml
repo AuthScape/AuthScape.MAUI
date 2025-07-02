@@ -32,7 +32,7 @@
         <VerticalStackLayout Spacing="{StaticResource LayoutSpacing}" Padding="{StaticResource LayoutPadding}">
             
             <Label x:Name="label"
-               Text="Not Logged in"
+               Text="{Binding LoginToken}"
                FontSize="18"
                VerticalOptions="Center"
                HorizontalOptions="Center" />

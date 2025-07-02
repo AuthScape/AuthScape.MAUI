@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AuthScape.MAUI
+namespace AuthScape.MAUI.Apps
 {
     public class AuthScapeMauiBuilder
     {

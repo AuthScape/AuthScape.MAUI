@@ -48,6 +48,9 @@ namespace AuthScapeMAUI.PageModels
             _categoryRepository = categoryRepository;
             _errorHandler = errorHandler;
             _seedDataService = seedDataService;
+
+
+            LoginToken = "Not Logged in!";
         }
 
         private async Task LoadData()
@@ -154,10 +157,20 @@ namespace AuthScapeMAUI.PageModels
 
 
 
+        private string _token;
 
-
-
-
+        public string LoginToken
+        {
+            get => _token;
+            set
+            {
+                if (_token != value)
+                {
+                    _token = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
 
 
@@ -208,7 +221,7 @@ namespace AuthScapeMAUI.PageModels
         [RelayCommand]
         public async Task Authenticate()
         {
-            string redirectUri = "yourapp://signin-oidc"; // Must match your registered URI
+            string redirectUri = "authscape://open/mainpage"; // Must match your registered URI
 
             string state = "1234"; // Or generate dynamically
             string verifier = GenerateRandomString(64);

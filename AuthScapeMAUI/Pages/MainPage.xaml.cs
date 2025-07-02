@@ -1,14 +1,15 @@
-﻿using AuthScapeMAUI.Models;
-using AuthScapeMAUI.PageModels;
+﻿using AuthScape.MAUI.DeepLink;
 
 namespace AuthScapeMAUI.Pages
 {
     public partial class MainPage : ContentPage
     {
-        public MainPage(MainPageModel model)
+        public MainPageModel ViewModel { get; }
+
+        public MainPage(MainPageModel viewModel)
         {
             InitializeComponent();
-            BindingContext = model;
+            BindingContext = ViewModel = viewModel;
         }
     }
 }

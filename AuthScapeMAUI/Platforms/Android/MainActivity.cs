@@ -2,55 +2,58 @@
 using Android.Content;
 using Android.Content.PM;
 using Android.OS;
+using AuthScape.MAUI.DeepLink;
 
 namespace AuthScapeMAUI
 {
     [Activity(Theme = "@style/Maui.SplashTheme", MainLauncher = true, LaunchMode = LaunchMode.SingleTop, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Density)]
-
     [IntentFilter(
         new[] { Intent.ActionView },
         Categories = new[] { Intent.CategoryDefault, Intent.CategoryBrowsable },
-        DataScheme = "yourapp",
-        DataHost = "callback"
+        DataScheme = "authscape", // your custom scheme
+        DataHost = "open"         // optional
     )]
-
     public class MainActivity : MauiAppCompatActivity
     {
-        public static IDictionary<string, string> ParseQueryParameters(string uri)
+        protected override void OnCreate(Bundle savedInstanceState)
         {
-            var result = new Dictionary<string, string>();
-            var query = new Uri(uri).Query;
+            base.OnCreate(savedInstanceState);
 
-            if (query.StartsWith("?"))
-                query = query.Substring(1);
-
-            foreach (var pair in query.Split('&', StringSplitOptions.RemoveEmptyEntries))
+            // Cold start deep link
+            if (Intent?.Data != null)
             {
-                var parts = pair.Split('=', 2);
-                if (parts.Length == 2)
-                {
-                    var key = Uri.UnescapeDataString(parts[0]);
-                    var value = Uri.UnescapeDataString(parts[1]);
-                    result[key] = value;
-                }
+                TryHandleDeepLink(Intent.Data);
             }
-
-            return result;
         }
 
-        protected override void OnNewIntent(Intent? intent)
+        protected override void OnNewIntent(Intent intent)
         {
             base.OnNewIntent(intent);
 
-            var uri = intent?.Data?.ToString();
-            if (!string.IsNullOrEmpty(uri) && uri.StartsWith("yourapp://callback"))
+            // Running instance receives deep link
+            if (intent?.Data != null)
             {
-                // Extract query parameters from the URI
-                var parsed = ParseQueryParameters(uri);
-                var code = parsed["code"]; // or whatever parameter you're expecting
-
-                // Pass it to your shared code (e.g., via MessagingCenter, static service, etc.)
+                TryHandleDeepLink(intent.Data);
             }
         }
+
+        private void TryHandleDeepLink(Android.Net.Uri uri)
+        {
+            try
+            {
+                var dotnetUri = new Uri(uri.ToString());
+
+                // Wait a moment to ensure MAUI is ready (especially on cold start)
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    LinkReceived.OnAppLinkRequestReceived(dotnetUri);
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[DeepLinkError] {ex.Message}");
+            }
+        }
+
     }
 }

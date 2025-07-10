@@ -80,5 +80,10 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\AuthScape.MAUI\AuthScape.MAUI.csproj" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Data\" />
+	  <Folder Include="Models\" />
+	</ItemGroup>
 	
 </Project>

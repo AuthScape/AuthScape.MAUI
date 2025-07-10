@@ -6,14 +6,9 @@
     <VerticalStackLayout>
 
         <Label
-            Text="Your authentication Token"
+            Text="Loading Please wait..."
             VerticalOptions="Center" 
             HorizontalOptions="Center" />
 
-        <Label
-            x:Name="Token"
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
     </VerticalStackLayout>
 </ContentPage>

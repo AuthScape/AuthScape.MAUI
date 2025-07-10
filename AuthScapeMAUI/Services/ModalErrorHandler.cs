@@ -13,21 +13,22 @@ namespace AuthScapeMAUI.Services
         /// <param name="ex">Exception.</param>
         public void HandleError(Exception ex)
         {
-            DisplayAlert(ex).FireAndForgetSafeAsync();
+
+            // this is a placeholder for the actual error handling logic
         }
 
-        async Task DisplayAlert(Exception ex)
-        {
-            try
-            {
-                await _semaphore.WaitAsync();
-                if (Shell.Current is Shell shell)
-                    await shell.DisplayAlert("Error", ex.Message, "OK");
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
-        }
+        //async Task DisplayAlert(Exception ex)
+        //{
+        //    try
+        //    {
+        //        await _semaphore.WaitAsync();
+        //        if (Shell.Current is Shell shell)
+        //            await shell.DisplayAlert("Error", ex.Message, "OK");
+        //    }
+        //    finally
+        //    {
+        //        _semaphore.Release();
+        //    }
+        //}
     }
 }

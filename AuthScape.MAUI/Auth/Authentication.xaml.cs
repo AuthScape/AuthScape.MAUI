@@ -21,18 +21,20 @@ public partial class Authentication : ContentPage, IQueryAttributable
             await accessVerifier.ExchangeCodeForTokensAsync(token); // Call the method to verify the token
 
             var accessToken = await SecureStorage.Default.GetAsync("access_token");
-            Token.Text = accessToken;
+            //Token.Text = accessToken;
 
             var userManagement = await _apiService.GetAsync("http://localhost:54218/api/UserManagement");
             if (userManagement != null)
             {
                 if (userManagement.StatusCode == System.Net.HttpStatusCode.OK)
                 {
-                    Token.Text = await userManagement.Content.ReadAsStringAsync();
+                    await SecureStorage.Default.SetAsync("user", await userManagement.Content.ReadAsStringAsync());
+
+                    await Shell.Current.GoToAsync("..");
                 }
                 else
                 {
-                    Token.Text = await userManagement.Content.ReadAsStringAsync();
+                    //Token.Text = await userManagement.Content.ReadAsStringAsync();
                 }
             }
                 

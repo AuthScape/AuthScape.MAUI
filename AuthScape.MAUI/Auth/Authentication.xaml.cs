@@ -1,5 +1,3 @@
-using AuthScape.MAUI.DeepLink;
-
 namespace AuthScape.MAUI.Auth;
 
 public partial class Authentication : ContentPage, IQueryAttributable
@@ -37,7 +35,6 @@ public partial class Authentication : ContentPage, IQueryAttributable
                     //Token.Text = await userManagement.Content.ReadAsStringAsync();
                 }
             }
-                
         }
     }
 }

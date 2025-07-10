@@ -1,5 +1,4 @@
 using AuthScape.MAUI;
-using AuthScape.MAUI.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -27,7 +26,11 @@ namespace AuthScapeMAUI.PageModels
         [RelayCommand]
         public async void Appearing()
         {
-            LoginToken = await _userManagementService.GetSignedInUser(); // Use the generated property instead of directly referencing the field
+            var signedInUser = await _userManagementService.GetSignedInUser();
+            if (signedInUser != null)
+            {
+                LoginToken = signedInUser.FirstName;
+            }
         }
     }
 }

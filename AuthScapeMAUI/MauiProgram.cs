@@ -37,7 +37,8 @@ namespace AuthScapeMAUI
 
 
 
-            RegisteredServices.Register(builder);
+            RegisteredServices.Register(builder, new MyEnvironmentSettings());
+            builder.Services.AddSingleton<UserManagementService>();
 
 
             // Setup for components that AuthScape Supports

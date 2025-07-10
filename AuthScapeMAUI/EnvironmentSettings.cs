@@ -1,12 +1,14 @@
-﻿namespace AuthScapeMAUI
+﻿using AuthScape.MAUI;
+
+namespace AuthScapeMAUI
 {
-    public class EnvironmentSettings
+    public class MyEnvironmentSettings : IEnvironmentSettings
     {
-        const string ClientId = "";
-        const string Secret = "";
-        const string BaseAPI = "https://api.authscape.com";
-        const string RedirectUri = "https://authscape.com/callback";
-        const string BaseIDP = "";
-        const string CompanyName = "AuthScape";
+        public string ClientId { get; set; } = "postman";
+        public string Secret { get; set; } = "";
+        public string BaseAPI { get; set; } = "http://localhost:54218/api";
+        public string RedirectUri { get; set; } = "authscape://open/mainpage";
+        public string BaseIDP { get; set; } = "https://localhost:44303";
+        public string CompanyName { get; set; } = "AuthScape";
     }
 }

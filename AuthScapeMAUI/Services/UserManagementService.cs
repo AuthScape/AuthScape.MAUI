@@ -8,9 +8,10 @@ namespace AuthScapeMAUI.Services
 {
     public class UserManagementService
     {
-        public async Task GetSignedInUser()
+        public async Task<string> GetSignedInUser()
         {
             var user = await SecureStorage.Default.GetAsync("user");
+            return user ?? string.Empty;
         }
     }
 }

@@ -35,6 +35,7 @@ namespace AuthScapeMAUI
             builder.Services.AddSingleton<MainPageModel>();
 
 
+            builder.Services.AddSingleton<UserManagementService>();
             builder.Services.AddSingleton<AuthService>();
             builder.Services.AddSingleton<ApiService>();
             builder.Services.AddHttpClient<ApiService>();

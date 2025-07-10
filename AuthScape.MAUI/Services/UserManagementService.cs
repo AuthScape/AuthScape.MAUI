@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AuthScapeMAUI.Services
+namespace AuthScape.MAUI.Services
 {
     public class UserManagementService
     {

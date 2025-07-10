@@ -1,5 +1,6 @@
 ﻿using AuthScape.MAUI;
 using AuthScape.MAUI.Apps;
+using AuthScape.MAUI.Services;
 using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
 using Syncfusion.Maui.Toolkit.Hosting;
@@ -35,12 +36,8 @@ namespace AuthScapeMAUI
             builder.Services.AddSingleton<MainPageModel>();
 
 
-            builder.Services.AddSingleton<UserManagementService>();
-            builder.Services.AddSingleton<AuthService>();
-            builder.Services.AddSingleton<ApiService>();
-            builder.Services.AddHttpClient<ApiService>();
 
-
+            RegisteredServices.Register(builder);
 
 
             // Setup for components that AuthScape Supports

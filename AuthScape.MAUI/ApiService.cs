@@ -13,19 +13,18 @@ namespace AuthScape.MAUI
     public class ApiService
     {
         readonly string _baseUri;
-        public ApiService(string baseUri)
+
+        public ApiService(HttpClient client, string baseUri)
         {
             _baseUri = baseUri;
+
+            _client = client;
+            _client.BaseAddress = new Uri(baseUri);
         }
+
 
         private readonly HttpClient _client;
         private bool _isRefreshing = false;
-
-        public ApiService(HttpClient client)
-        {
-            _client = client;
-            _client.BaseAddress = new Uri(_baseUri);
-        }
 
 
         private async Task<string> GetAccessTokenAsync()

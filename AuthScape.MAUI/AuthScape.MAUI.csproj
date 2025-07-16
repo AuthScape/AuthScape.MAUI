@@ -19,7 +19,7 @@
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<PackageId>AuthScape.MAUI</PackageId>
 		<Title>AuthScape.MAUI</Title>
-		<Version>1.0.2</Version>
+		<Version>1.0.6</Version>
 		<Authors>zuechb</Authors>
 		<Company>zuechb</Company>
 		<Product>AuthScape.MAUI</Product>

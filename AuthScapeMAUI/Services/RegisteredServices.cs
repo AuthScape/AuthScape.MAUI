@@ -1,4 +1,5 @@
 ﻿using AuthScape.MAUI;
+using AuthScape.MAUI.Interfaces;
 using System.Text.Json;
 
 namespace AuthScapeMAUI.Services
@@ -21,14 +22,12 @@ namespace AuthScapeMAUI.Services
                 return new AuthService(authorityUri, clientId, redirectUri);
             });
 
-            builder.Services.AddSingleton(provider =>
+            builder.Services.AddHttpClient<ApiService>((provider, client) =>
             {
-                var baseUri = EnvironmentConstants.BaseAPI;
-
-                return new ApiService(baseUri);
+                var env = provider.GetRequiredService<IEnvironmentSettings>();
+                client.BaseAddress = new Uri(env.BaseAPI);
             });
 
-            builder.Services.AddHttpClient<ApiService>();
         }
     }
 }

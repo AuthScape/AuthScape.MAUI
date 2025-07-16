@@ -1,42 +1,26 @@
 ﻿using AuthScape.MAUI.Auth;
+using AuthScape.MAUI.Interfaces;
+using System.Text.Json;
 
 namespace AuthScape.MAUI.DeepLink
 {
     public class LinkReceived
     {
-        public void HandleAppLink(Uri uri)
-        {
-            OnAppLinkRequestReceived(uri);
-        }
-
-        public static async void OnAppLinkRequestReceived(Uri uri)
+        public static async Task OnAppLinkRequestReceived(Uri uri, IEnvironmentSettings environmentSettings)
         {
             var route = uri.PathAndQuery.TrimStart('/');
             var routePath = route.Split('?')[0];
             var query = URI.ParseQueryString(uri.Query);
 
-            if (Shell.Current?.CurrentItem?.CurrentItem is ShellSection section &&
-                section.CurrentItem?.Content is Authentication authPage)
+            if (query.TryGetValue("code", out var tokenObj))
             {
-                System.Diagnostics.Debug.WriteLine("Injecting query params into existing Authentication page.");
-                authPage.ApplyQueryAttributes(query);
-                return;
-            }
+                string token = Uri.UnescapeDataString(tokenObj?.ToString() ?? string.Empty);
 
-            try
-            {
-                if (Shell.Current != null) // Ensure Shell.Current is not null before dereferencing
-                {
-                    await Shell.Current.GoToAsync(route);
-                }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine("[Navigation Error]: Shell.Current is null.");
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[Navigation Error]: {ex.Message}");
+                var accessVerifier = new AccessVerifier();
+
+                await accessVerifier.ExchangeCodeForTokensAsync(token, environmentSettings); // Call the method to verify the token
+
+                await accessVerifier.GetSignedInUser(environmentSettings);
             }
         }
     }

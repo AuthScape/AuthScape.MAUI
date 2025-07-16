@@ -1,4 +1,5 @@
 ﻿using AuthScape.MAUI.DeepLink;
+using AuthScapeMAUI.Models;
 
 namespace AuthScapeMAUI
 {
@@ -19,7 +20,12 @@ namespace AuthScapeMAUI
         protected override void OnAppLinkRequestReceived(Uri uri)
         {
             base.OnAppLinkRequestReceived(uri);
-            LinkReceived.OnAppLinkRequestReceived(uri);
+
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                var settings = new EnvironmentSettings();
+                await LinkReceived.OnAppLinkRequestReceived(uri, settings);
+            });
         }
     }
 }

@@ -27,6 +27,7 @@ namespace AuthScape.MAUI
             _client.BaseAddress = new Uri(_baseUri);
         }
 
+
         private async Task<string> GetAccessTokenAsync()
         {
             return await SecureStorage.Default.GetAsync("access_token") ?? string.Empty;

@@ -13,7 +13,7 @@ namespace AuthScapeMAUI
             var currentTheme = Application.Current!.UserAppTheme;
             //ThemeSegmentedControl.SelectedIndex = currentTheme == AppTheme.Light ? 0 : 1;
 
-            Routing.RegisterRoute("mainpage", typeof(Authentication)); // must be registered for the deeplink
+            Routing.RegisterRoute("mainpage", typeof(MainPage)); // must be registered for the deeplink
         }
         public static async Task DisplaySnackbarAsync(string message)
         {

@@ -58,5 +58,11 @@ namespace AuthScape.MAUI
 
             await Launcher.Default.OpenAsync(new Uri(loginUri));
         }
+
+        public void Logout()
+        {
+            // Clear stored tokens
+            SecureStorage.Default.RemoveAll();
+        }
     }
 }

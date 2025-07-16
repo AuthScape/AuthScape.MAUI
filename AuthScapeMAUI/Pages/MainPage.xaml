@@ -44,6 +44,12 @@
                 Command="{Binding AuthenticateCommand}"
             />
 
+            <Button Text="Logout"
+                VerticalOptions="Center"
+                HorizontalOptions="Center" 
+                Command="{Binding LogoutCommand}"
+            />
+
         </VerticalStackLayout>
     </Grid>
 </ContentPage>

@@ -3,6 +3,7 @@ using Android.Content;
 using Android.Content.PM;
 using Android.OS;
 using AuthScape.MAUI.DeepLink;
+using AuthScapeMAUI.Models;
 
 namespace AuthScapeMAUI
 {
@@ -10,8 +11,7 @@ namespace AuthScapeMAUI
     [IntentFilter(
         new[] { Intent.ActionView },
         Categories = new[] { Intent.CategoryDefault, Intent.CategoryBrowsable },
-        DataScheme = "authscape", // your custom scheme
-        DataHost = "open"         // optional
+        DataScheme = EnvironmentConstants.DataScheme
     )]
     public class MainActivity : MauiAppCompatActivity
     {
@@ -44,9 +44,15 @@ namespace AuthScapeMAUI
                 var dotnetUri = new Uri(uri.ToString());
 
                 // Wait a moment to ensure MAUI is ready (especially on cold start)
-                MainThread.BeginInvokeOnMainThread(() =>
+                MainThread.BeginInvokeOnMainThread(async () =>
                 {
-                    LinkReceived.OnAppLinkRequestReceived(dotnetUri);
+                    var settings = new EnvironmentSettings();
+                    await LinkReceived.OnAppLinkRequestReceived(dotnetUri, settings);
+
+                    if (Shell.Current.CurrentPage?.BindingContext is MainPageModel vm)
+                    {
+                        vm.AppearingCommand.Execute(null);
+                    }
                 });
             }
             catch (Exception ex)

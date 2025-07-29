@@ -1,114 +1,155 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+using System.Globalization;
+using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
+using AuthScape.MAUI.Interfaces;
+using Microsoft.Maui.Storage;
 
 namespace AuthScape.MAUI
 {
     public class ApiService
     {
-        readonly string _baseUri;
+        private readonly HttpClient _client;
+        private readonly SemaphoreSlim _refreshLock = new SemaphoreSlim(1, 1);
+        private readonly IEnvironmentSettings _environmentSettings;
 
-        public ApiService(HttpClient client, string baseUri)
+        public ApiService(HttpClient client, IEnvironmentSettings environmentSettings, string baseUri)
         {
-            _baseUri = baseUri;
-
             _client = client;
             _client.BaseAddress = new Uri(baseUri);
+            _environmentSettings = environmentSettings;
         }
-
-
-        private readonly HttpClient _client;
-        private bool _isRefreshing = false;
-
 
         private async Task<string> GetAccessTokenAsync()
+            => await SecureStorage.Default.GetAsync("access_token") ?? string.Empty;
+
+        private async Task<DateTime> GetTokenExpiryAsync()
         {
-            return await SecureStorage.Default.GetAsync("access_token") ?? string.Empty;
+            var expiresAtString = await SecureStorage.Default.GetAsync("expires_at");
+            if (DateTime.TryParse(
+                    expiresAtString,
+                    null,
+                    DateTimeStyles.RoundtripKind,
+                    out var expiresAt))
+            {
+                return expiresAt;
+            }
+            return DateTime.MinValue;
         }
 
-        private async Task<HttpRequestMessage> CreateRequestAsync(HttpMethod method, string url, HttpContent content = null)
+        private async Task EnsureValidTokenAsync()
         {
-            var token = await GetAccessTokenAsync();
-            var request = new HttpRequestMessage(method, url);
-            if (!string.IsNullOrEmpty(token))
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            // If token isn’t expiring within the next hour, nothing to do
+            var expiresAt = await GetTokenExpiryAsync();
+            if (DateTime.UtcNow.AddHours(1) < expiresAt)
+                return;
 
-            if (content != null)
-                request.Content = content;
+            // Only one thread at a time may refresh
+            await _refreshLock.WaitAsync();
+            try
+            {
+                // Double-check inside lock
+                expiresAt = await GetTokenExpiryAsync();
+                if (DateTime.UtcNow.AddHours(1) < expiresAt)
+                    return;
 
-            return request;
+                await RefreshTokenAsync();
+            }
+            finally
+            {
+                _refreshLock.Release();
+            }
         }
 
         private async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request)
         {
-            var response = await _client.SendAsync(request);
-            if (response.StatusCode == HttpStatusCode.Unauthorized && !_isRefreshing)
-            {
-                _isRefreshing = true;
-                var refreshed = await RefreshTokenAsync();
-                _isRefreshing = false;
+            // Make sure our token is fresh
+            await EnsureValidTokenAsync();
 
-                if (refreshed)
+            var token = await GetAccessTokenAsync();
+            if (!string.IsNullOrEmpty(token))
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _client.SendAsync(request);
+
+            // Fallback: if we still get 401, try one more time
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                await _refreshLock.WaitAsync();
+                try
                 {
-                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", await GetAccessTokenAsync());
-                    return await _client.SendAsync(request);
+                    var refreshed = await RefreshTokenAsync();
+                    if (refreshed)
+                    {
+                        token = await GetAccessTokenAsync();
+                        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                        response = await _client.SendAsync(request);
+                    }
+                }
+                finally
+                {
+                    _refreshLock.Release();
                 }
             }
+
             return response;
         }
 
-        public async Task<HttpResponseMessage> GetAsync(string url)
+        private async Task<HttpRequestMessage> CreateRequestAsync(HttpMethod method, string url, HttpContent content = null)
         {
-            var request = await CreateRequestAsync(HttpMethod.Get, url);
-            return await SendAsync(request);
+            var request = new HttpRequestMessage(method, url);
+            if (content != null)
+                request.Content = content;
+            return request;
         }
 
-        public async Task<HttpResponseMessage> PostAsync(string url, HttpContent content)
-        {
-            var request = await CreateRequestAsync(HttpMethod.Post, url, content);
-            return await SendAsync(request);
-        }
+        public Task<HttpResponseMessage> GetAsync(string url)
+            => CreateRequestAsync(HttpMethod.Get, url).ContinueWith(t => SendAsync(t.Result)).Unwrap();
 
-        public async Task<HttpResponseMessage> PutAsync(string url, HttpContent content)
-        {
-            var request = await CreateRequestAsync(HttpMethod.Put, url, content);
-            return await SendAsync(request);
-        }
+        public Task<HttpResponseMessage> PostAsync(string url, HttpContent content)
+            => CreateRequestAsync(HttpMethod.Post, url, content).ContinueWith(t => SendAsync(t.Result)).Unwrap();
 
-        public async Task<HttpResponseMessage> DeleteAsync(string url)
-        {
-            var request = await CreateRequestAsync(HttpMethod.Delete, url);
-            return await SendAsync(request);
-        }
+        public Task<HttpResponseMessage> PutAsync(string url, HttpContent content)
+            => CreateRequestAsync(HttpMethod.Put, url, content).ContinueWith(t => SendAsync(t.Result)).Unwrap();
+
+        public Task<HttpResponseMessage> DeleteAsync(string url)
+            => CreateRequestAsync(HttpMethod.Delete, url).ContinueWith(t => SendAsync(t.Result)).Unwrap();
 
         private async Task<bool> RefreshTokenAsync()
         {
             var refreshToken = await SecureStorage.Default.GetAsync("refresh_token");
-            if (string.IsNullOrEmpty(refreshToken)) return false;
+            if (string.IsNullOrEmpty(refreshToken))
+                return false;
 
             var content = new FormUrlEncodedContent(new Dictionary<string, string>
-        {
-            { "grant_type", "refresh_token" },
-            { "client_id", "your-client-id" },
-            { "client_secret", "your-client-secret" },
-            { "refresh_token", refreshToken }
-        });
+            {
+                { "grant_type",    "refresh_token" },
+                { "client_id",     _environmentSettings.ClientId },
+                { "client_secret", _environmentSettings.ClientSecret },
+                { "refresh_token", refreshToken }
+            });
 
-            var response = await _client.PostAsync("https://your-auth-server/connect/token", content);
-            if (!response.IsSuccessStatusCode) return false;
+            // Hit your token endpoint
+            var response = await _client.PostAsync(_environmentSettings.BaseIDP + "/connect/token", content);
+            if (!response.IsSuccessStatusCode)
+                return false;
 
             var json = await response.Content.ReadAsStringAsync();
             var tokenData = JsonSerializer.Deserialize<TokenResponse>(json);
 
+            // Store new tokens...
             await SecureStorage.Default.SetAsync("access_token", tokenData.access_token);
             await SecureStorage.Default.SetAsync("refresh_token", tokenData.refresh_token);
-            await SecureStorage.Default.SetAsync("expires_in", tokenData.expires_in.ToString());
+
+            // ...and compute & store the exact expiry moment
+            var expiresAt = DateTime.UtcNow.AddSeconds(tokenData.expires_in);
+            await SecureStorage.Default.SetAsync("expires_at", expiresAt.ToString("o"));
 
             return true;
         }

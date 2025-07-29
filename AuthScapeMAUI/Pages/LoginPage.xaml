@@ -6,11 +6,17 @@
              xmlns:controls="clr-namespace:AuthScapeMAUI.Pages.Controls"
              xmlns:pullToRefresh="clr-namespace:Syncfusion.Maui.Toolkit.PullToRefresh;assembly=Syncfusion.Maui.Toolkit"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-             x:Class="AuthScapeMAUI.Pages.MainPage"
-             x:DataType="pageModels:MainPageModel"
+             x:Class="AuthScapeMAUI.Pages.LoginPage"
+             x:DataType="pageModels:LoginPageModel"
              Title="{Binding Today}">
 
     <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior
+                EventName="NavigatedTo"
+                Command="{Binding NavigatedToCommand}" />
+        <toolkit:EventToCommandBehavior
+                EventName="NavigatedFrom"
+                Command="{Binding NavigatedFromCommand}" />
         <toolkit:EventToCommandBehavior
                 EventName="Appearing"                
                 Command="{Binding AppearingCommand}" />
@@ -30,12 +36,12 @@
                FontSize="18"
                VerticalOptions="Center"
                HorizontalOptions="Center" />
-            
 
-            <Button Text="Logout"
+
+            <Button Text="Login"
                 VerticalOptions="Center"
                 HorizontalOptions="Center" 
-                Command="{Binding LogoutCommand}"
+                Command="{Binding AuthenticateCommand}"
             />
 
         </VerticalStackLayout>

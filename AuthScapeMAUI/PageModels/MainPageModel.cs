@@ -16,7 +16,10 @@ namespace AuthScapeMAUI.PageModels
             _authService = authService;
             _userManagementService = userManagementService;
 
-            LoginToken = "Not logged in";
+            Task.Run(async () =>
+            {
+                await Appearing();
+            });
         }
 
         [RelayCommand]

@@ -1,4 +1,6 @@
-﻿using System.Security.Cryptography;
+﻿using AuthScape.MAUI.Subscriptions;
+using CommunityToolkit.Mvvm.Messaging;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace AuthScape.MAUI
@@ -63,6 +65,8 @@ namespace AuthScape.MAUI
         {
             // Clear stored tokens
             SecureStorage.Default.RemoveAll();
+
+            WeakReferenceMessenger.Default.Send(new LoggedOutMessage(true));
         }
     }
 }

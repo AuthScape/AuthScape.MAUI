@@ -32,6 +32,10 @@ namespace AuthScapeMAUI
 
             builder.Services.AddSingleton<ModalErrorHandler>();
             builder.Services.AddSingleton<MainPageModel>();
+            builder.Services.AddSingleton<LoginPageModel>();
+            builder.Services.AddSingleton<LoginPage>();
+            builder.Services.AddSingleton<AppShell>();
+
 
 
             RegisteredServices.Register(builder);

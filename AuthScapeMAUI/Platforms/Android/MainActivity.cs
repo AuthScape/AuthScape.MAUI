@@ -46,13 +46,10 @@ namespace AuthScapeMAUI
                 // Wait a moment to ensure MAUI is ready (especially on cold start)
                 MainThread.BeginInvokeOnMainThread(async () =>
                 {
-                    var settings = new EnvironmentSettings();
-                    await LinkReceived.OnAppLinkRequestReceived(dotnetUri, settings);
+                    var appShell = App.Services.GetRequiredService<AppShell>();
 
-                    if (Shell.Current.CurrentPage?.BindingContext is MainPageModel vm)
-                    {
-                        vm.AppearingCommand.Execute(null);
-                    }
+                    var settings = new EnvironmentSettings();
+                    await LinkReceived.OnAppLinkRequestReceived(dotnetUri, settings, appShell);
                 });
             }
             catch (Exception ex)

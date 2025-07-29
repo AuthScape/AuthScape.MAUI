@@ -1,31 +1,74 @@
-﻿using AuthScape.MAUI.DeepLink;
-using AuthScapeMAUI.Models;
+﻿using AuthScape.MAUI.Subscriptions;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace AuthScapeMAUI
 {
     public partial class App : Application
     {
-        public static App? CurrentApp => Application.Current as App;
+        public static IServiceProvider Services { get; private set; }
 
-        public App()
+        public App(IServiceProvider serviceProvider)
         {
             InitializeComponent();
+
+            Services = serviceProvider;
+
+
+            WeakReferenceMessenger.Default.Register<LoggedOutMessage>(this, (r, m) =>
+            {
+                if (m.Value)
+                {
+                    var window = Application.Current?.Windows.FirstOrDefault();
+                    if (window != null)
+                    {
+                        window.Page = Services.GetRequiredService<LoginPage>();
+
+                        
+                    }
+                }
+            });
+
+            WeakReferenceMessenger.Default.Register<LoginMessage>(this, (r, m) =>
+            {
+                if (m.Value)
+                {
+                    var window = Application.Current?.Windows.FirstOrDefault();
+                    if (window != null)
+                    {
+                        var appShellPage = Services.GetRequiredService<AppShell>();
+                        window.Page = appShellPage;
+
+                        if (Shell.Current.CurrentPage?.BindingContext is MainPageModel vm)
+                        {
+                            vm.AppearingCommand.Execute(null);
+                        }
+                    }
+                }
+            });
+        }
+
+        private bool IsLoggedIn()
+        {
+            var accessToken = SecureStorage.Default.GetAsync("access_token").Result;
+            if (!String.IsNullOrWhiteSpace(accessToken))
+            {
+                return true;
+            }
+            return false;
         }
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            return new Window(new AppShell());
-        }
-
-        protected override void OnAppLinkRequestReceived(Uri uri)
-        {
-            base.OnAppLinkRequestReceived(uri);
-
-            MainThread.BeginInvokeOnMainThread(async () =>
+            if (IsLoggedIn())
             {
-                var settings = new EnvironmentSettings();
-                await LinkReceived.OnAppLinkRequestReceived(uri, settings);
-            });
+                var appShellPage = Services.GetRequiredService<AppShell>();
+                return new Window(appShellPage);
+            }
+            else
+            {
+                var loginPage = Services.GetRequiredService<LoginPage>();
+                return new Window(loginPage);
+            }
         }
     }
 }

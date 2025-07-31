@@ -19,10 +19,10 @@ namespace AuthScape.MAUI
         private readonly SemaphoreSlim _refreshLock = new SemaphoreSlim(1, 1);
         private readonly IEnvironmentSettings _environmentSettings;
 
-        public ApiService(HttpClient client, IEnvironmentSettings environmentSettings, string baseUri)
+        public ApiService(HttpClient client, IEnvironmentSettings environmentSettings)
         {
             _client = client;
-            _client.BaseAddress = new Uri(baseUri);
+            _client.BaseAddress = new Uri(environmentSettings.BaseAPI);
             _environmentSettings = environmentSettings;
         }
 

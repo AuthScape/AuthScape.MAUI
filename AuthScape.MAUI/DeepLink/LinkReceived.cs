@@ -17,7 +17,7 @@ namespace AuthScape.MAUI.DeepLink
             {
                 string token = Uri.UnescapeDataString(tokenObj?.ToString() ?? string.Empty);
 
-                var accessVerifier = new AccessVerifier();
+                var accessVerifier = new AccessVerifier(environmentSettings);
 
                 await accessVerifier.ExchangeCodeForTokensAsync(token, environmentSettings); // Call the method to verify the token
 

@@ -4,6 +4,7 @@ namespace AuthScapeMAUI.Models
 {
     public class EnvironmentSettings : IEnvironmentSettings
     {
+        public bool IsDebug => EnvironmentConstants.IsDebug;
         public string DataScheme => EnvironmentConstants.DataScheme;
         public string ClientId => EnvironmentConstants.ClientId;
         public string ClientSecret => EnvironmentConstants.ClientSecret;

@@ -2,6 +2,7 @@
 {
     public interface IEnvironmentSettings
     {
+        bool IsDebug { get; }
         string DataScheme { get; }
         string ClientId { get; }
         string ClientSecret { get; }

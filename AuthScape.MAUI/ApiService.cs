@@ -22,7 +22,6 @@ namespace AuthScape.MAUI
         public ApiService(HttpClient client, IEnvironmentSettings environmentSettings)
         {
             _client = client;
-            _client.BaseAddress = new Uri(environmentSettings.BaseAPI);
             _environmentSettings = environmentSettings;
         }
 
@@ -47,18 +46,13 @@ namespace AuthScape.MAUI
         {
             // If token isn’t expiring within the next hour, nothing to do
             var expiresAt = await GetTokenExpiryAsync();
-            if (DateTime.UtcNow.AddHours(1) < expiresAt)
+            if (DateTime.UtcNow.AddMinutes(15) < expiresAt)
                 return;
 
             // Only one thread at a time may refresh
             await _refreshLock.WaitAsync();
             try
             {
-                // Double-check inside lock
-                expiresAt = await GetTokenExpiryAsync();
-                if (DateTime.UtcNow.AddHours(1) < expiresAt)
-                    return;
-
                 await RefreshTokenAsync();
             }
             finally
@@ -136,22 +130,41 @@ namespace AuthScape.MAUI
             });
 
             // Hit your token endpoint
-            var response = await _client.PostAsync(_environmentSettings.BaseIDP + "/connect/token", content);
-            if (!response.IsSuccessStatusCode)
-                return false;
+            HttpClient client;
+            if (_environmentSettings.IsDebug)
+            {
+                var handler = new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+                };
 
-            var json = await response.Content.ReadAsStringAsync();
-            var tokenData = JsonSerializer.Deserialize<TokenResponse>(json);
+                client = new HttpClient(handler);
+            }
+            else
+            {
+                client = new HttpClient();
+            }
 
-            // Store new tokens...
-            await SecureStorage.Default.SetAsync("access_token", tokenData.access_token);
-            await SecureStorage.Default.SetAsync("refresh_token", tokenData.refresh_token);
 
-            // ...and compute & store the exact expiry moment
-            var expiresAt = DateTime.UtcNow.AddSeconds(tokenData.expires_in);
-            await SecureStorage.Default.SetAsync("expires_at", expiresAt.ToString("o"));
+            using (client)
+            {
+                var response = await client.PostAsync(_environmentSettings.BaseIDP + "/connect/token", content);
+                if (!response.IsSuccessStatusCode)
+                    return false;
 
-            return true;
+                var json = await response.Content.ReadAsStringAsync();
+                var tokenData = JsonSerializer.Deserialize<TokenResponse>(json);
+
+                // Store new tokens...
+                await SecureStorage.Default.SetAsync("access_token", tokenData.access_token);
+                await SecureStorage.Default.SetAsync("refresh_token", tokenData.refresh_token);
+
+                // ...and compute & store the exact expiry moment
+                var expiresAt = DateTime.UtcNow.AddSeconds(tokenData.expires_in);
+                await SecureStorage.Default.SetAsync("expires_at", expiresAt.ToString("o"));
+
+                return true;
+            }
         }
 
         public async Task DownloadFileAsync(string url, string fileName, Action onComplete = null)

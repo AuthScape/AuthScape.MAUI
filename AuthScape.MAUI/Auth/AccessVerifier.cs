@@ -15,15 +15,21 @@ namespace AuthScape.MAUI.Auth
     {
         HttpClient client;
 
-        public AccessVerifier()
+        public AccessVerifier(IEnvironmentSettings environmentSettings)
         {
-            // TODO: remove this for production use!!!!
-            var handler = new HttpClientHandler
+            if (environmentSettings.IsDebug)
             {
-                ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
-            };
+                var handler = new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+                };
 
-            client = new HttpClient(handler);
+                client = new HttpClient(handler);
+            }
+            else
+            {
+                client = new HttpClient();
+            }
         }
 
 
@@ -52,7 +58,9 @@ namespace AuthScape.MAUI.Auth
 
                 await SecureStorage.Default.SetAsync("access_token", tokenData.access_token);
                 await SecureStorage.Default.SetAsync("refresh_token", tokenData.refresh_token);
-                await SecureStorage.Default.SetAsync("expires_in", tokenData.expires_in.ToString());
+
+                var expiresAt = DateTime.UtcNow.AddSeconds(tokenData.expires_in);
+                await SecureStorage.Default.SetAsync("expires_at", expiresAt.ToString("o")); // ISO 8601 format
             }
             else
             {

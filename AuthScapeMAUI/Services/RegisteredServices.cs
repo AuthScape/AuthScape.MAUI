@@ -25,7 +25,11 @@ namespace AuthScapeMAUI.Services
             builder.Services.AddHttpClient<ApiService>((provider, client) =>
             {
                 var env = provider.GetRequiredService<IEnvironmentSettings>();
-                client.BaseAddress = new Uri(env.BaseAPI);
+
+                var baseApi = env.BaseAPI;
+                if (!baseApi.EndsWith("/"))
+                    baseApi += "/";
+                client.BaseAddress = new Uri(baseApi);
             });
 
         }

@@ -1,4 +1,5 @@
-﻿using Foundation;
+﻿using AuthScapeMAUI.Models;
+using Foundation;
 using UIKit;
 
 namespace AuthScapeMAUI

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Select-Object Id,ProcessName,CPU)",
+      "Bash(powershell.exe -Command -)",
+      "Bash(powershell.exe -Command:*)",
+      "Bash(cmd.exe /c \"tasklist | findstr /i devenv\")",
+      "Bash(ipconfig:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

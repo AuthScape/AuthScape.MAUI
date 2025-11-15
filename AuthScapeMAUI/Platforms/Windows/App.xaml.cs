@@ -19,6 +19,9 @@ namespace AuthScapeMAUI.WinUI
         public App()
         {
             this.InitializeComponent();
+
+            // Subscribe to protocol activation for already-running app
+            Microsoft.Windows.AppLifecycle.AppInstance.GetCurrent().Activated += OnActivated;
         }
 
         protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
@@ -27,21 +30,90 @@ namespace AuthScapeMAUI.WinUI
         {
             base.OnLaunched(args);
 
-            var activationArgs = Microsoft.Windows.AppLifecycle.AppInstance.GetCurrent().GetActivatedEventArgs();
+            // For unpackaged apps, check command-line arguments
+            var commandLineArgs = Environment.GetCommandLineArgs();
+            System.Diagnostics.Debug.WriteLine($"[Windows] Command line args: {string.Join(", ", commandLineArgs)}");
 
-            if (activationArgs.Kind == ExtendedActivationKind.Protocol)
+            if (commandLineArgs.Length > 1)
             {
-                var protocolArgs = activationArgs.Data as IProtocolActivatedEventArgs;
+                var uriString = commandLineArgs[1];
+                System.Diagnostics.Debug.WriteLine($"[Windows] Checking arg: {uriString}");
+
+                if (uriString.StartsWith("authscape://", StringComparison.OrdinalIgnoreCase))
+                {
+                    try
+                    {
+                        var uri = new Uri(uriString);
+                        await TryHandleDeepLink(uri);
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[Windows] Failed to parse URI: {ex.Message}");
+                    }
+                }
+            }
+
+            // Also try the packaged app method (in case it works)
+            try
+            {
+                var activationArgs = Microsoft.Windows.AppLifecycle.AppInstance.GetCurrent().GetActivatedEventArgs();
+
+                if (activationArgs?.Kind == ExtendedActivationKind.Protocol)
+                {
+                    var protocolArgs = activationArgs.Data as IProtocolActivatedEventArgs;
+                    var uri = protocolArgs?.Uri;
+
+                    if (uri != null && uri.Scheme?.ToLower() == EnvironmentConstants.DataScheme.ToLower())
+                    {
+                        await TryHandleDeepLink(uri);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Windows] Protocol activation check failed: {ex.Message}");
+            }
+        }
+
+        private async void OnActivated(object sender, AppActivationArguments args)
+        {
+            // Handle protocol activation when app is already running
+            System.Diagnostics.Debug.WriteLine($"[Windows] OnActivated called with kind: {args.Kind}");
+
+            if (args.Kind == ExtendedActivationKind.Protocol)
+            {
+                var protocolArgs = args.Data as IProtocolActivatedEventArgs;
                 var uri = protocolArgs?.Uri;
 
-                if (uri != null)
-                {
-                    string query = uri.Query; // e.g., ?user=123
-                    string path = uri.AbsolutePath;
+                System.Diagnostics.Debug.WriteLine($"[Windows] Protocol activation URI: {uri}");
 
-                    // Navigate or handle based on URI
-                    await Shell.Current.GoToAsync($"{path}{query}");
+                if (uri != null && uri.Scheme?.ToLower() == EnvironmentConstants.DataScheme.ToLower())
+                {
+                    await TryHandleDeepLink(uri);
                 }
+            }
+        }
+
+        private async Task TryHandleDeepLink(System.Uri uri)
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine($"[Windows] TryHandleDeepLink called with URI: {uri}");
+
+                // Wait a moment to ensure MAUI is fully initialized
+                await Task.Delay(500);
+
+                var appShell = AuthScapeMAUI.App.Services.GetRequiredService<AppShell>();
+                var settings = new AuthScapeMAUI.Models.EnvironmentSettings();
+
+                System.Diagnostics.Debug.WriteLine($"[Windows] Calling OnAppLinkRequestReceived");
+                await AuthScape.MAUI.DeepLink.LinkReceived.OnAppLinkRequestReceived(uri, settings, appShell);
+                System.Diagnostics.Debug.WriteLine($"[Windows] DeepLink handling completed");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[DeepLinkError] {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[DeepLinkError] Stack: {ex.StackTrace}");
             }
         }
     }

@@ -19,17 +19,18 @@
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<PackageId>AuthScape.MAUI</PackageId>
 		<Title>AuthScape.MAUI</Title>
-		<Version>1.0.16</Version>
+		<Version>1.0.18</Version>
 		<Authors>zuechb</Authors>
 		<Company>zuechb</Company>
 		<Product>AuthScape.MAUI</Product>
+		<Platforms>AnyCPU;x64</Platforms>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AathifMahir.Maui.MauiIcons.Material" Version="4.0.0" />
+		<PackageReference Include="AathifMahir.Maui.MauiIcons.Material" Version="5.0.0" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-		<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.7" />
-		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.90" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.10" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.120" />
 	</ItemGroup>
 
 </Project>

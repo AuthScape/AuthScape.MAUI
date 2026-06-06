@@ -41,11 +41,17 @@ namespace AuthScape.MAUI
 
         public async Task Authenticate()
         {
-            string state = "1234"; // Or generate dynamically
+            // OIDC state must be cryptographically random per request and stashed so the
+            // callback handler can verify the value bouncing back from the IDP matches what
+            // we sent. A fixed value (the previous "1234") defeats CSRF protection — anyone
+            // could craft a malicious /signin-oidc?code=...&state=1234 callback.
+            string state = GenerateRandomString(32);
             string verifier = GenerateRandomString(64);
             string challenge = GenerateCodeChallenge(verifier);
 
-            // Optionally store verifier for later token exchange
+            // Persist both for the token-exchange step. Verify state matches before
+            // exchanging the code.
+            await SecureStorage.Default.SetAsync("state", state);
             await SecureStorage.Default.SetAsync("verifier", verifier);
 
             string scope = "email openid offline_access profile api1";
